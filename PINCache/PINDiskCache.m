@@ -128,8 +128,17 @@ NSString * const PINDiskCacheSharedName = @"PINDiskCacheShared";
 {
     if (![key length])
         return nil;
+
+    NSString *partToEncode = [key copy];
+    NSString *fileNameExtension = [key pathExtension];
+    if(fileNameExtension){
+        partToEncode = [key stringByDeletingPathExtension];
+    }
+
+    NSString *encodedPart = [self encodedString:partToEncode];
+    NSString *fullName = fileNameExtension ? [encodedPart stringByAppendingPathExtension:fileNameExtension] : encodedPart; 
     
-    return [_cacheURL URLByAppendingPathComponent:[self encodedString:key]];
+    return [_cacheURL URLByAppendingPathComponent:fullName];
 }
 
 - (NSString *)keyForEncodedFileURL:(NSURL *)url
@@ -137,8 +146,17 @@ NSString * const PINDiskCacheSharedName = @"PINDiskCacheShared";
     NSString *fileName = [url lastPathComponent];
     if (!fileName)
         return nil;
-    
-    return [self decodedString:fileName];
+
+    NSString *partToDecode = fileName;
+    NSString *fileNameExtension = [fileName pathExtension];
+    if(fileNameExtension){
+       partToDecode = [fileName stringByDeletingPathExtension];
+    }
+
+    NSString *decodedPart = [self decodedString:partToDecode];
+    NSString *fullEncodedKey = fileNameExtension ? [decodedPart stringByAppendingPathExtension:fileNameExtension] : decodedPart;
+
+    return fullEncodedKey;
 }
 
 - (NSString *)encodedString:(NSString *)string
